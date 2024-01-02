@@ -1,0 +1,19 @@
+std_class,std_class_clean
+C,nonres
+A,nonres
+I,nonres
+COMMERCIAL,nonres
+INDUSTRIAL,nonres
+Agricultural,nonres
+Gas- Commercial,nonres
+Elec- Agricultural,nonres
+Elec- Commercial,nonres
+Elec- Industrial,nonres
+Commercial,nonres
+Industrial,nonres
+R,res
+RESIDENTIAL,res
+Gas- Residential,res
+Elec- Residential,res
+Residential,res
+Gas-,unknown
