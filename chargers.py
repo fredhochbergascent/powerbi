@@ -8,12 +8,13 @@ clients = pandas.read_csv('inputs/common/clients.csv')
 clients['ZIP_CODE'] = clients['ZIP_CODE'].astype(str)
 out_dir = 'outputs/chargers/'
 
-#Check
+#Get total chargers before pivots to make sure none were dropped.
 for i in ['EV Level1 EVSE Num','EV Level2 EVSE Num', 'EV DC Fast Count']:
     df[i] = df[i].fillna(value=0)
     print(i+' total chargers before: ',df[i].sum())
 
 df[df['Fuel Type Code']=='ELEC'] #Keep EV chargers only
+
 #Get year and delete unknown years from data
 df['year'] = None
 for i in ['Open Date','Expected Date','Date Last Confirmed']:
@@ -23,16 +24,11 @@ for i in ['Open Date','Expected Date','Date Last Confirmed']:
 assert not df['year'].isnull().any(),'null vals present'
 df['year'] = df['year'].astype(int)
 
-
-
 df = df.merge(right=clients,left_on = 'ZIP',right_on = 'ZIP_CODE',how='left',copy=True)
 
 #Fill blanks
 for i in index_cols:
     df[i] = numpy.where(df[i].isnull(),'unknown',df[i])
-
-
-
 
 #Reshape data to get cumulative counts. Need to generate data for missing year/zip code combos.
 #Unfortunately this means a pivot table to make an observation for every year
@@ -43,8 +39,6 @@ df = pandas.pivot_table(data=df,
                         columns=['year'],
                         aggfunc=sum)
 df.reset_index(inplace=True)
-
-
 flattened_columns = [''.join(map(str, col)).strip() for col in df.columns]
 df.columns = flattened_columns
 for i in df.columns:
@@ -63,42 +57,9 @@ df.sort_values(by=['Client Name','Client City','ZIP','year'],inplace=True)
 for i in ['EV Level1 EVSE Num','EV Level2 EVSE Num', 'EV DC Fast Count']:
     df['Cumulative Total '+i] = df.groupby(['Client Name','Client City','ZIP'])[i].cumsum()
 
-#Check
+#Get total chargers after pivots to make sure none were dropped.
 for i in ['EV Level1 EVSE Num','EV Level2 EVSE Num', 'EV DC Fast Count']:
-    print(i+' total chargers before: ',df[i].sum())
+    print(i+' total chargers after: ',df[i].sum())
 
 
 df.to_csv(out_dir+'chargers_by_year_and_zip.csv',index=False)
-
-
-
-
-
-'''
-df = pandas.pivot_table(data=df,
-                        values=['EV Level1 EVSE Num','EV Level2 EVSE Num', 'EV DC Fast Count'],
-                        index=['Client Name','Client City','ZIP','year'],
-                        aggfunc=sum)
-df.reset_index(inplace=True)
-
-
-df.sort_values(by=['Client Name','Client City','ZIP','year'],inplace=True)
-for i in ['EV Level1 EVSE Num','EV Level2 EVSE Num', 'EV DC Fast Count']:
-    df['Cumulative Total '+i] = df.groupby(['Client Name','Client City','ZIP'])[i].cumsum()
-
-
-df.to_csv(out_dir+'chargers_by_year_and_zip.csv',index=False)        
-
-
-df = pandas.pivot_table(data=df,
-                        values=['EV Level1 EVSE Num','EV Level2 EVSE Num', 'EV DC Fast Count'],
-                        index=index_cols,
-                        aggfunc=sum)
-
-
-for i in ['EV Level1 EVSE Num','EV Level2 EVSE Num', 'EV DC Fast Count']:
-    df['Cumulative Total '+i] = df.groupby(['Client Name','year'])[i].cumsum()
-
-#raise BaseException
-
-'''

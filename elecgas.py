@@ -44,7 +44,7 @@ for i in os.listdir(data_dir):
     
     df.rename(columns=renames,inplace=True)
     df['ZIP_CODE'] = df['ZIP_CODE'].astype(str)
-    assert len(df.columns)==11,'Should be 11 cols'
+    assert len(df.columns)==11,'Should be 11 cols; check to make sure file read in correctly'
     big_df = pd.concat([df,big_df])
 
 
@@ -65,7 +65,7 @@ big_df['Client Name'] = numpy.where(big_df['Client Name'].isnull(),'unassigned',
 big_df['Client City'] = numpy.where(big_df['Client City'].isnull(),'unassigned',big_df['Client City'])
 
 
-data_before = big_df['std_total_kwh'].sum()/10**6
+data_before = big_df['std_total_kwh'].sum()/10**6 #Check to make sure no data is dropped during pivots - see assert statement below
 big_df['PO_NAME'] = numpy.where(big_df['PO_NAME'].isnull(),'unknown',big_df['PO_NAME'])
 big_df['POPULATION'] = numpy.where(big_df['POPULATION'].isnull(),'unknown',big_df['POPULATION'])
 big_df['county'] = numpy.where(big_df['county'].isnull(),'unknown',big_df['county'])
@@ -95,7 +95,3 @@ big_df['therms_per_customer_per_month'] = big_df['std_total_therms gas']/big_df[
 big_df.reset_index(inplace=True)
 big_df.drop(labels=['std_total_kwh gas','std_total_therms electric'],axis=1,inplace=True)
 big_df.to_csv(output_dir+'per_capita.csv',index=False)
-
-
-
-

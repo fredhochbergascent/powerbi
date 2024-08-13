@@ -12,7 +12,7 @@ tos = pandas.read_csv('inputs/transit/tos.csv')
 
 for each_sheet in sheets:
     df = pandas.read_excel(input_wkbk,sheet_name=each_sheet)
-    df = df.merge(right=modes,on='Mode',how='left',copy=True)
+    df = df.merge(right=modes,on='Mode',how='left',copy=True) #Get human-readable names for modes and TOS
     df = df.merge(right=tos,on='TOS',how='left',copy=True)
     df=df[df['NTD ID'].notnull()] #Get rid of totals at the bottom
     date_cols = [i for i in df.columns if '/' in i]
